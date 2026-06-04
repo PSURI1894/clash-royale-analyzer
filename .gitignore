@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Local databases / build artifacts
+*.sqlite3
+*.db
+backend/cr_helper.sqlite3
+
+# Downloaded source data (re-fetched by the ingest pipeline)
+data/raw/
+
+# Environment / secrets
+.env
+.env.local
+
+# Node / Next.js
+node_modules/
+web/.next/
+web/out/
+web/node_modules/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
