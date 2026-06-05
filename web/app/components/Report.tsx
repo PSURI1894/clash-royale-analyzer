@@ -1,6 +1,6 @@
 "use client";
 
-import type { AnalysisReport } from "../types";
+import type { AnalysisReport, CardSummary } from "../types";
 import { elixirColor, roleColor, scoreColor, severityColor } from "../ui";
 
 function Stat({ label, value }: { label: string; value: string }) {
@@ -12,10 +12,17 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function Report({ report }: { report: AnalysisReport }) {
+export default function Report({
+  report,
+  byKey,
+}: {
+  report: AnalysisReport;
+  byKey: Record<string, CardSummary>;
+}) {
   const m = report.metrics;
   const curveValues = Object.values(m.elixir_curve);
   const maxCurve = Math.max(1, ...curveValues);
+  const nameOf = (k: string) => byKey[k]?.name ?? k;
 
   return (
     <section className="report card">
@@ -48,6 +55,17 @@ export default function Report({ report }: { report: AnalysisReport }) {
           value={report.win_conditions.length ? report.win_conditions.join(", ") : "— none —"}
         />
       </div>
+
+      {report.weak_against.length > 0 && (
+        <div className="weak-against">
+          <span className="wa-label">No hard answer to</span>
+          <div className="wa-chips">
+            {report.weak_against.map((k) => (
+              <span key={k} className="wa-chip">{nameOf(k)}</span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="report-cols">
         <div className="curve">

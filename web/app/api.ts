@@ -1,4 +1,4 @@
-import type { AnalysisReport, CardSummary } from "./types";
+import type { AnalysisReport, CardSummary, MatchupReport } from "./types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
 
@@ -20,5 +20,26 @@ export async function analyzeDeck(cards: string[]): Promise<AnalysisReport> {
     throw new Error(detail || "Invalid deck");
   }
   if (!res.ok) throw new Error(`Analyze failed (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function getArchetypes(): Promise<string[]> {
+  const res = await fetch(`${API_BASE}/archetypes`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load archetypes (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function getMatchup(cards: string[], opponent: string): Promise<MatchupReport> {
+  const res = await fetch(`${API_BASE}/matchup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ cards, opponent }),
+  });
+  if (res.status === 422) {
+    const body = await res.json().catch(() => ({}));
+    const detail = Array.isArray(body.detail) ? body.detail.join("; ") : body.detail;
+    throw new Error(detail || "Invalid matchup request");
+  }
+  if (!res.ok) throw new Error(`Matchup failed (HTTP ${res.status})`);
   return res.json();
 }

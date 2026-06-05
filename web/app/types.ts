@@ -59,4 +59,37 @@ export interface AnalysisReport {
   metrics: DeckMetrics;
   vulnerabilities: Vulnerability[];
   stability_score: number;
+  weak_against: string[];
+}
+
+export interface ResolvedEdge {
+  source_key: string;
+  target_key: string;
+  relation: string;
+  value: number;
+  confidence: number;
+  sources: string[];
+}
+
+export interface CardRelations {
+  key: string;
+  counters: ResolvedEdge[];
+  countered_by: ResolvedEdge[];
+  synergies: ResolvedEdge[];
+}
+
+export interface ThreatCoverage {
+  threat: string;
+  severity: number;
+  coverage: number;
+  best_answer: string | null;
+  answers: string[];
+}
+
+export interface MatchupReport {
+  opponent: string;
+  score: number;
+  verdict: string;
+  threats: ThreatCoverage[];
+  danger: string[];
 }

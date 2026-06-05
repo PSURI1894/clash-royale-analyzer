@@ -101,3 +101,46 @@ class AnalysisReport(BaseModel):
     metrics: DeckMetricsOut
     vulnerabilities: list[VulnerabilityOut]
     stability_score: int
+    # Meta threats the deck has no in-deck answer to (filled from the knowledge graph).
+    weak_against: list[str] = []
+
+
+# ---- Knowledge graph / matchups (Phase 2) ----
+
+
+class ResolvedEdgeOut(BaseModel):
+    source_key: str
+    target_key: str
+    relation: str
+    value: float
+    confidence: float
+    sources: list[str]
+
+
+class CardRelationsOut(BaseModel):
+    key: str
+    counters: list[ResolvedEdgeOut]        # what this card answers
+    countered_by: list[ResolvedEdgeOut]    # what answers this card
+    synergies: list[ResolvedEdgeOut]
+
+
+class MatchupRequest(BaseModel):
+    cards: list[str]
+    opponent: str | None = None            # archetype name (e.g. "Lavaloon")
+    opponent_cards: list[str] | None = None
+
+
+class ThreatCoverageOut(BaseModel):
+    threat: str
+    severity: float
+    coverage: float
+    best_answer: str | None
+    answers: list[str]
+
+
+class MatchupReport(BaseModel):
+    opponent: str
+    score: int                             # 0..100
+    verdict: str
+    threats: list[ThreatCoverageOut]
+    danger: list[str]                      # threats with no in-deck answer

@@ -4,6 +4,8 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from ..graph.repo import SqlGraphRepo
+from ..graph.service import GraphService
 from ..models import Card
 from ..schemas import AnalysisReport
 from .engine import AnalyzerCard, build_report
@@ -40,4 +42,7 @@ def load_and_validate(session: Session, keys: list[str]) -> list[Card]:
 
 def analyze_deck(session: Session, keys: list[str]) -> AnalysisReport:
     cards = load_and_validate(session, keys)
-    return build_report([AnalyzerCard.from_orm(c) for c in cards])
+    report = build_report([AnalyzerCard.from_orm(c) for c in cards])
+    # Enrich with graph-driven matchup awareness (meta threats with no in-deck answer).
+    report.weak_against = GraphService(SqlGraphRepo(session)).weak_against(keys)
+    return report

@@ -24,7 +24,7 @@ Next.js web  ──►  FastAPI  ──►  LlamaIndex orchestration + Context F
 |---|---|---|
 | 0 | Foundation & data spine (ingest cr-api-data → DB, `/cards` API) | ✅ done |
 | 1 | Deterministic deck analyzer (`/analyze`) + Next.js deck-builder UI | ✅ done |
-| 2 | Neo4j knowledge graph + curated matchups | ⬜ |
+| 2 | Knowledge graph + curated matchups + confidence-weighted ensemble (`/matchup`, `/cards/{key}/relations`) | ✅ done |
 | 3 | Battle-log mining ETL (official API) | ⬜ |
 | 4 | RAG tactical advisor (Claude + pgvector) | ⬜ |
 | 5 | Deterministic battle engine | ⬜ |
@@ -41,6 +41,9 @@ py -3 -m venv .venv
 
 # Ingest card data into a local SQLite DB
 .\.venv\Scripts\python.exe -m cr_helper.ingest
+
+# Seed the matchup knowledge graph (167 curated counter/synergy edges)
+.\.venv\Scripts\python.exe -m cr_helper.graph.seed
 
 # Run the API
 .\.venv\Scripts\python.exe -m uvicorn cr_helper.main:app --reload
@@ -60,22 +63,36 @@ npm run dev          # http://localhost:3000  (needs the API running on :8000)
 
 Pick 8 cards (or load a preset) → **Analyze deck** → archetype, elixir curve, defensive
 air/ground DPS, win-condition detection, and a vulnerability report with a stability score.
+Once the deck is full, the **Matchup simulator** scores it against a meta archetype
+(Lavaloon, Golem Beatdown, X-Bow Siege, …) using the knowledge graph — showing which
+threats your deck answers and which it has no response to.
 
 ## Full stack (Docker — Postgres + Neo4j + Redis)
 
 ```powershell
 docker compose up -d          # start Postgres+pgvector, Neo4j, Redis
 # set DATABASE_URL to the Postgres URL in .env, then run ingest + API as above
+
+# Optional: store the knowledge graph in Neo4j instead of SQL
+#   pip install -e ".[neo4j]"; set NEO4J_URI=bolt://localhost:7687, GRAPH_BACKEND=neo4j
+#   then re-run  python -m cr_helper.graph.seed   (seeds SQL + Neo4j)
 ```
+
+The knowledge graph is **storage-agnostic**: it runs on SQLite/Postgres by default (Docker-free),
+with a drop-in **Neo4j adapter** (`cr_helper/graph/neo4j_repo.py`) for the full stack. Every edge
+carries provenance `{value, source, confidence, sample_size}`; the **ensemble resolver** blends
+curated priors with (later) mined/simulated/scraped evidence via a confidence-weighted average.
 
 ## Layout
 
 ```
 backend/cr_helper/        FastAPI app, models, ingest pipeline
   ingest/                 cr-api-data download → normalize → load
-  routers/                API endpoints
-backend/tests/            pytest
-web/                      Next.js frontend (Phase 1)
+  analyzer/               deterministic deck metrics + archetype/vulnerabilities
+  graph/                  matchup graph: ensemble resolver, SQL + Neo4j repos, seed
+  routers/                API endpoints (cards, analyze, graph)
+backend/tests/            pytest (30 tests)
+web/                      Next.js frontend (deck builder + matchup simulator)
 docker-compose.yml        Postgres+pgvector, Neo4j, Redis
-data/                     raw downloads (gitignored), curated seeds
+data/curated/             curated matchup edges (matchups.json)
 ```

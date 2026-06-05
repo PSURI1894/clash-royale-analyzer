@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     # Where downloaded source JSON is cached.
     data_dir: Path = _REPO_ROOT / "data"
 
+    # Knowledge graph backend: "sql" (Docker-free, default) or "neo4j" (full stack).
+    graph_backend: str = "sql"
+    neo4j_uri: str = ""  # e.g. bolt://localhost:7687 — enables Neo4j seeding when set
+    neo4j_user: str = "neo4j"
+    neo4j_password: str = "password123"
+
     # Phase 3+ (left blank until needed).
     clash_royale_api_token: str = ""
     anthropic_api_key: str = ""

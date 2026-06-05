@@ -7,10 +7,26 @@ phases can pull additional fields without re-ingesting.
 """
 from __future__ import annotations
 
-from sqlalchemy import JSON, Boolean, Float, ForeignKey, Integer, String, Text
+from datetime import datetime, timezone
+
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
+
+
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
 class Card(Base):
@@ -71,3 +87,31 @@ class CardStats(Base):
     raw: Mapped[dict | None] = mapped_column(JSON)
 
     card: Mapped["Card"] = relationship(back_populates="stats")
+
+
+class MatchupEdge(Base):
+    """A provenance-bearing edge in the knowledge graph.
+
+    Multiple rows may exist for the same (source_key, target_key, relation) from
+    different data sources; the ensemble resolver blends them into one effective
+    value. This is the spine of the confidence-weighted ensemble (curated now;
+    mined/simulated/scraped in later phases).
+    """
+
+    __tablename__ = "matchup_edges"
+    __table_args__ = (
+        UniqueConstraint("source_key", "target_key", "relation", "source", name="uq_edge"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    source_key: Mapped[str] = mapped_column(String, index=True)
+    target_key: Mapped[str] = mapped_column(String, index=True)
+    target_kind: Mapped[str] = mapped_column(String, default="card")  # card | archetype
+    # counters | synergizes_with | win_condition_for
+    relation: Mapped[str] = mapped_column(String, index=True)
+    value: Mapped[float] = mapped_column(Float, default=0.0)  # strength / effectiveness 0..1
+    source: Mapped[str] = mapped_column(String, default="curated")  # provenance
+    confidence: Mapped[float] = mapped_column(Float, default=0.5)
+    sample_size: Mapped[int] = mapped_column(Integer, default=0)
+    note: Mapped[str | None] = mapped_column(Text)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

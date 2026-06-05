@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse
 
 from . import __version__
 from .db import init_db
-from .routers import analyze, cards
+from .routers import analyze, cards, graph
 
 
 @asynccontextmanager
@@ -35,6 +35,7 @@ app.add_middleware(
 
 app.include_router(cards.router)
 app.include_router(analyze.router)
+app.include_router(graph.router)
 
 
 @app.get("/health", tags=["meta"])

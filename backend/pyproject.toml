@@ -21,6 +21,8 @@ dependencies = [
 [project.optional-dependencies]
 # Postgres driver — only needed for the Docker/production stack, not for local SQLite dev.
 postgres = ["psycopg[binary]>=3.2"]
+# Neo4j driver — only needed for the full-stack knowledge graph (GRAPH_BACKEND=neo4j).
+neo4j = ["neo4j>=5.20"]
 dev = ["pytest>=8", "ruff>=0.5"]
 
 [tool.hatch.build.targets.wheel]

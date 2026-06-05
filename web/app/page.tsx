@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { analyzeDeck, getCards } from "./api";
 import CardGrid from "./components/CardGrid";
 import DeckTray from "./components/DeckTray";
+import Matchup from "./components/Matchup";
 import Report from "./components/Report";
 import { PRESETS } from "./presets";
 import type { AnalysisReport, CardSummary } from "./types";
@@ -89,7 +90,11 @@ export default function Home() {
 
       {error && <div className="banner error">{error}</div>}
 
-      {report && <Report report={report} />}
+      {report && <Report report={report} byKey={byKey} />}
+
+      {deck.length === 8 && (
+        <Matchup key={deck.join(",")} deck={deck} byKey={byKey} />
+      )}
 
       <CardGrid cards={cards} deck={deck} onAdd={add} />
     </main>
