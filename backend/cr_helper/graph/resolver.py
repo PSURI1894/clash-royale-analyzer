@@ -38,6 +38,14 @@ class EdgeRow:
 
 
 @dataclass
+class SourceComponent:
+    source: str
+    value: float
+    weight: float
+    sample_size: int
+
+
+@dataclass
 class ResolvedEdge:
     source_key: str
     target_key: str
@@ -45,6 +53,7 @@ class ResolvedEdge:
     value: float
     confidence: float
     sources: list[str]
+    components: list[SourceComponent]
 
 
 def edge_weight(row: EdgeRow) -> float:
@@ -64,21 +73,24 @@ def resolve(rows: list[EdgeRow]) -> ResolvedEdge | None:
     total = 0.0
     weighted_value = 0.0
     contribution: dict[str, float] = {}
+    components: list[SourceComponent] = []
     for r in rows:
         w = edge_weight(r)
+        components.append(SourceComponent(r.source, round(r.value, 3), round(w, 2), r.sample_size))
         if w <= 0:
             continue
         total += w
         weighted_value += r.value * w
         contribution[r.source] = contribution.get(r.source, 0.0) + w
 
+    components.sort(key=lambda c: -c.weight)
     head = rows[0]
     if total <= 0:
         # No weighted evidence (e.g. only mined rows with sample_size 0): plain mean, tiny confidence.
         mean = sum(r.value for r in rows) / len(rows)
         return ResolvedEdge(
             head.source_key, head.target_key, head.relation,
-            round(mean, 3), 0.1, sorted({r.source for r in rows}),
+            round(mean, 3), 0.1, sorted({r.source for r in rows}), components,
         )
 
     sources = [s for s, _ in sorted(contribution.items(), key=lambda kv: -kv[1])]
@@ -87,4 +99,5 @@ def resolve(rows: list[EdgeRow]) -> ResolvedEdge | None:
         value=round(weighted_value / total, 3),
         confidence=round(total / (total + K0), 3),
         sources=sources,
+        components=components,
     )

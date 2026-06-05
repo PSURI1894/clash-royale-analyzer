@@ -23,6 +23,8 @@ dependencies = [
 postgres = ["psycopg[binary]>=3.2"]
 # Neo4j driver — only needed for the full-stack knowledge graph (GRAPH_BACKEND=neo4j).
 neo4j = ["neo4j>=5.20"]
+# Celery — only needed for scheduled mining on the full stack (needs Redis).
+celery = ["celery[redis]>=5.3"]
 dev = ["pytest>=8", "ruff>=0.5"]
 
 [tool.hatch.build.targets.wheel]

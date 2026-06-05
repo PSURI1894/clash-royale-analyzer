@@ -108,6 +108,13 @@ class AnalysisReport(BaseModel):
 # ---- Knowledge graph / matchups (Phase 2) ----
 
 
+class SourceComponentOut(BaseModel):
+    source: str
+    value: float
+    weight: float
+    sample_size: int
+
+
 class ResolvedEdgeOut(BaseModel):
     source_key: str
     target_key: str
@@ -115,6 +122,7 @@ class ResolvedEdgeOut(BaseModel):
     value: float
     confidence: float
     sources: list[str]
+    components: list[SourceComponentOut] = []
 
 
 class CardRelationsOut(BaseModel):
@@ -144,3 +152,21 @@ class MatchupReport(BaseModel):
     verdict: str
     threats: list[ThreatCoverageOut]
     danger: list[str]                      # threats with no in-deck answer
+
+
+# ---- Mining / meta (Phase 3) ----
+
+
+class MiningStatsOut(BaseModel):
+    battles: int
+    by_dataset: dict[str, int]
+    mined_edges: int
+    players: int
+
+
+class CardMetaOut(BaseModel):
+    key: str
+    name: str
+    games: int
+    win_rate: float
+    usage: float

@@ -6,6 +6,7 @@ from ..schemas import (
     CardRelationsOut,
     MatchupReport,
     ResolvedEdgeOut,
+    SourceComponentOut,
     ThreatCoverageOut,
 )
 from .curated import ARCHETYPE_THREATS, META_THREATS
@@ -17,6 +18,10 @@ def _to_out(e: ResolvedEdge) -> ResolvedEdgeOut:
     return ResolvedEdgeOut(
         source_key=e.source_key, target_key=e.target_key, relation=e.relation,
         value=e.value, confidence=e.confidence, sources=e.sources,
+        components=[
+            SourceComponentOut(source=c.source, value=c.value, weight=c.weight, sample_size=c.sample_size)
+            for c in e.components
+        ],
     )
 
 
@@ -77,14 +82,22 @@ class GraphService:
             threats=coverages, danger=danger,
         )
 
-    def weak_against(self, deck_keys: list[str]) -> list[str]:
-        """Meta threats with no in-deck answer in the (curated) graph."""
+    def weak_against(self, deck_keys: list[str], threshold: float = 0.55) -> list[str]:
+        """Meta threats with no in-deck answer (resolved counter value >= threshold).
+
+        The threshold ensures a merely-neutral (~0.5) edge — e.g. a noisy mined
+        pairing — does not count as a real answer and mask a genuine weakness.
+        """
         deck = set(deck_keys)
         weak: list[str] = []
         for threat in META_THREATS:
             if threat in deck:
                 continue
-            if not any(e.source_key in deck for e in self.repo.answers_to(threat)):
+            answers = [
+                e for e in self.repo.answers_to(threat)
+                if e.source_key in deck and e.value >= threshold
+            ]
+            if not answers:
                 weak.append(threat)
         return weak
 

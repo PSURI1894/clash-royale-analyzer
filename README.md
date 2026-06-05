@@ -25,7 +25,7 @@ Next.js web  ──►  FastAPI  ──►  LlamaIndex orchestration + Context F
 | 0 | Foundation & data spine (ingest cr-api-data → DB, `/cards` API) | ✅ done |
 | 1 | Deterministic deck analyzer (`/analyze`) + Next.js deck-builder UI | ✅ done |
 | 2 | Knowledge graph + curated matchups + confidence-weighted ensemble (`/matchup`, `/cards/{key}/relations`) | ✅ done |
-| 3 | Battle-log mining ETL (official API) | ⬜ |
+| 3 | Battle-log mining ETL → empirical `mined` edges + card meta (`/mining/stats`, `/meta/cards`) | ✅ done |
 | 4 | RAG tactical advisor (Claude + pgvector) | ⬜ |
 | 5 | Deterministic battle engine | ⬜ |
 | 6 | Scraping enrichment + productionization | ⬜ |
@@ -44,6 +44,9 @@ py -3 -m venv .venv
 
 # Seed the matchup knowledge graph (167 curated counter/synergy edges)
 .\.venv\Scripts\python.exe -m cr_helper.graph.seed
+
+# Mine empirical win-rates (offline synthetic source — no API token needed)
+.\.venv\Scripts\python.exe -m cr_helper.mining --source synthetic --limit 10000
 
 # Run the API
 .\.venv\Scripts\python.exe -m uvicorn cr_helper.main:app --reload
@@ -81,7 +84,26 @@ docker compose up -d          # start Postgres+pgvector, Neo4j, Redis
 The knowledge graph is **storage-agnostic**: it runs on SQLite/Postgres by default (Docker-free),
 with a drop-in **Neo4j adapter** (`cr_helper/graph/neo4j_repo.py`) for the full stack. Every edge
 carries provenance `{value, source, confidence, sample_size}`; the **ensemble resolver** blends
-curated priors with (later) mined/simulated/scraped evidence via a confidence-weighted average.
+curated priors with mined/simulated/scraped evidence via a confidence-weighted average — and
+`GET /cards/{key}/relations` exposes the per-source `components` so the blend is auditable.
+
+## Battle-log mining (Phase 3)
+
+```powershell
+# Offline synthetic source — deterministic, no token (outcomes biased by the curated graph)
+python -m cr_helper.mining --source synthetic --limit 10000
+
+# Real ladder battles — needs an IP-whitelisted token from developer.clashroyale.com
+#   set CLASH_ROYALE_API_TOKEN in .env, then crawl from seed player tags:
+python -m cr_helper.mining --source api --seed-tags "#2PP0" "#9YJUPU9LV" --limit 5000
+```
+
+The pipeline parses battle logs → resolves cards to catalog keys → dedupes → stores → aggregates
+empirical win-rates into `source=mined` edges (level/sample/margin-guarded). As real battles
+accumulate, mined evidence **outweighs and refines** the curated prior — e.g. the expert
+`inferno-tower ⟶ golem` "hard counter" (0.90) is pulled to the observed deck-level win-rate (~0.68).
+Keys are **IP-locked**: run the harvester on a static-IP host (or proxy), never serverless.
+Scheduling: wrap `run_mining` with Celery beat (`cr_helper/mining/tasks.py`, needs Redis).
 
 ## Layout
 
@@ -90,9 +112,11 @@ backend/cr_helper/        FastAPI app, models, ingest pipeline
   ingest/                 cr-api-data download → normalize → load
   analyzer/               deterministic deck metrics + archetype/vulnerabilities
   graph/                  matchup graph: ensemble resolver, SQL + Neo4j repos, seed
-  routers/                API endpoints (cards, analyze, graph)
-backend/tests/            pytest (30 tests)
-web/                      Next.js frontend (deck builder + matchup simulator)
+  mining/                 battle-log ETL: sources (api/synthetic), parse, aggregate
+  routers/                API endpoints (cards, analyze, graph, mining)
+backend/tests/            pytest (34 tests)
+web/                      Next.js frontend (deck builder + matchup + card meta)
 docker-compose.yml        Postgres+pgvector, Neo4j, Redis
 data/curated/             curated matchup edges (matchups.json)
+data/fixtures/            sample official-API battle log (parser tests)
 ```

@@ -5,6 +5,7 @@ import { analyzeDeck, getCards } from "./api";
 import CardGrid from "./components/CardGrid";
 import DeckTray from "./components/DeckTray";
 import Matchup from "./components/Matchup";
+import MetaPanel from "./components/MetaPanel";
 import Report from "./components/Report";
 import { PRESETS } from "./presets";
 import type { AnalysisReport, CardSummary } from "./types";
@@ -95,6 +96,8 @@ export default function Home() {
       {deck.length === 8 && (
         <Matchup key={deck.join(",")} deck={deck} byKey={byKey} />
       )}
+
+      <MetaPanel />
 
       <CardGrid cards={cards} deck={deck} onAdd={add} />
     </main>

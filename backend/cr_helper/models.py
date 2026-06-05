@@ -115,3 +115,45 @@ class MatchupEdge(Base):
     sample_size: Mapped[int] = mapped_column(Integer, default=0)
     note: Mapped[str | None] = mapped_column(Text)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class Battle(Base):
+    """One parsed 1v1 battle (deduped across crawled players by `battle_uid`).
+
+    Decks are stored as resolved card keys so aggregation is catalog-native.
+    `dataset` keeps synthetic demo data strictly separate from official-API data.
+    """
+
+    __tablename__ = "battles"
+    __table_args__ = (UniqueConstraint("battle_uid", name="uq_battle_uid"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    battle_uid: Mapped[str] = mapped_column(String, index=True)
+    dataset: Mapped[str] = mapped_column(String, default="api", index=True)  # api | synthetic
+    player_tag: Mapped[str | None] = mapped_column(String, index=True)
+    opponent_tag: Mapped[str | None] = mapped_column(String)
+    won: Mapped[bool] = mapped_column(Boolean)
+    mode: Mapped[str | None] = mapped_column(String, index=True)
+    team_cards: Mapped[list] = mapped_column(JSON)       # list[str] of card keys
+    opponent_cards: Mapped[list] = mapped_column(JSON)
+    team_avg_level: Mapped[float | None] = mapped_column(Float)
+    opponent_avg_level: Mapped[float | None] = mapped_column(Float)
+    trophies: Mapped[int | None] = mapped_column(Integer)
+    battle_time: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class CardMetaStat(Base):
+    """Aggregated per-card empirical win-rate / usage for a dataset."""
+
+    __tablename__ = "card_meta_stats"
+    __table_args__ = (UniqueConstraint("card_key", "dataset", name="uq_card_meta"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    card_key: Mapped[str] = mapped_column(String, index=True)
+    dataset: Mapped[str] = mapped_column(String, default="api", index=True)
+    games: Mapped[int] = mapped_column(Integer, default=0)
+    wins: Mapped[int] = mapped_column(Integer, default=0)
+    win_rate: Mapped[float] = mapped_column(Float, default=0.0)
+    usage: Mapped[float] = mapped_column(Float, default=0.0)  # fraction of battles featuring it
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

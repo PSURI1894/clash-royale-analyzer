@@ -1,0 +1,147 @@
+[
+  {
+    "type": "PvP",
+    "battleTime": "20240601T120000.000Z",
+    "isLadderTournament": false,
+    "arena": { "id": 54000067, "name": "Legendary Arena" },
+    "gameMode": { "id": 72000006, "name": "Ladder" },
+    "deckSelection": "collection",
+    "team": [
+      {
+        "tag": "#AAA111",
+        "name": "Alpha",
+        "startingTrophies": 7200,
+        "trophyChange": 31,
+        "crowns": 2,
+        "kingTowerHitPoints": 4824,
+        "princessTowersHitPoints": [2880, 1400],
+        "cards": [
+          { "name": "Hog Rider", "id": 26000021, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Musketeer", "id": 26000014, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Ice Golem", "id": 26000031, "level": 14, "maxLevel": 14, "elixirCost": 2 },
+          { "name": "Ice Spirit", "id": 26000030, "level": 14, "maxLevel": 14, "elixirCost": 1 },
+          { "name": "Skeletons", "id": 26000010, "level": 14, "maxLevel": 14, "elixirCost": 1 },
+          { "name": "Cannon", "id": 27000000, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Fireball", "id": 28000000, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "The Log", "id": 28000011, "level": 14, "maxLevel": 14, "elixirCost": 2 }
+        ]
+      }
+    ],
+    "opponent": [
+      {
+        "tag": "#BBB222",
+        "name": "Bravo",
+        "startingTrophies": 7210,
+        "trophyChange": -31,
+        "crowns": 0,
+        "kingTowerHitPoints": 4824,
+        "princessTowersHitPoints": [0, 0],
+        "cards": [
+          { "name": "Golem", "id": 26000009, "level": 11, "maxLevel": 14, "elixirCost": 8 },
+          { "name": "Night Witch", "id": 26000048, "level": 11, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Baby Dragon", "id": 26000015, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Mega Minion", "id": 26000039, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Lightning", "id": 28000007, "level": 11, "maxLevel": 14, "elixirCost": 6 },
+          { "name": "Tornado", "id": 28000012, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Lumberjack", "id": 26000034, "level": 11, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Barbarian Hut", "id": 27000005, "level": 14, "maxLevel": 14, "elixirCost": 7 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "pathOfLegend",
+    "battleTime": "20240601T123000.000Z",
+    "gameMode": { "id": 72000323, "name": "Ranked1v1_NewArena2025" },
+    "team": [
+      {
+        "tag": "#AAA111",
+        "name": "Alpha",
+        "startingTrophies": 0,
+        "trophyChange": 0,
+        "crowns": 0,
+        "cards": [
+          { "name": "Hog Rider", "id": 26000021, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Musketeer", "id": 26000014, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Ice Golem", "id": 26000031, "level": 14, "maxLevel": 14, "elixirCost": 2 },
+          { "name": "Ice Spirit", "id": 26000030, "level": 14, "maxLevel": 14, "elixirCost": 1 },
+          { "name": "Skeletons", "id": 26000010, "level": 14, "maxLevel": 14, "elixirCost": 1 },
+          { "name": "Cannon", "id": 27000000, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Fireball", "id": 28000000, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "The Log", "id": 28000011, "level": 14, "maxLevel": 14, "elixirCost": 2 }
+        ]
+      }
+    ],
+    "opponent": [
+      {
+        "tag": "#CCC333",
+        "name": "Charlie",
+        "startingTrophies": 0,
+        "trophyChange": 0,
+        "crowns": 1,
+        "cards": [
+          { "name": "Golem", "id": 26000009, "level": 14, "maxLevel": 14, "elixirCost": 8 },
+          { "name": "Night Witch", "id": 26000048, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Baby Dragon", "id": 26000015, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Mega Minion", "id": 26000039, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Lightning", "id": 28000007, "level": 14, "maxLevel": 14, "elixirCost": 6 },
+          { "name": "Tornado", "id": 28000012, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Lumberjack", "id": 26000034, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Barbarian Hut", "id": 27000005, "level": 14, "maxLevel": 14, "elixirCost": 7 }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "PvP",
+    "battleTime": "20240601T124500.000Z",
+    "gameMode": { "id": 72000010, "name": "2v2" },
+    "team": [
+      { "tag": "#AAA111", "name": "Alpha", "crowns": 3, "cards": [] },
+      { "tag": "#DDD444", "name": "Delta", "crowns": 3, "cards": [] }
+    ],
+    "opponent": [
+      { "tag": "#EEE555", "name": "Echo", "crowns": 1, "cards": [] },
+      { "tag": "#FFF666", "name": "Foxtrot", "crowns": 1, "cards": [] }
+    ]
+  },
+  {
+    "type": "PvP",
+    "battleTime": "20240601T130000.000Z",
+    "gameMode": { "id": 72000006, "name": "Ladder" },
+    "team": [
+      {
+        "tag": "#AAA111",
+        "name": "Alpha",
+        "crowns": 1,
+        "cards": [
+          { "name": "Hog Rider", "id": 26000021, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Musketeer", "id": 26000014, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Ice Golem", "id": 26000031, "level": 14, "maxLevel": 14, "elixirCost": 2 },
+          { "name": "Ice Spirit", "id": 26000030, "level": 14, "maxLevel": 14, "elixirCost": 1 },
+          { "name": "Skeletons", "id": 26000010, "level": 14, "maxLevel": 14, "elixirCost": 1 },
+          { "name": "Cannon", "id": 27000000, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Fireball", "id": 28000000, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "The Log", "id": 28000011, "level": 14, "maxLevel": 14, "elixirCost": 2 }
+        ]
+      }
+    ],
+    "opponent": [
+      {
+        "tag": "#GGG777",
+        "name": "Golf",
+        "crowns": 1,
+        "cards": [
+          { "name": "Golem", "id": 26000009, "level": 14, "maxLevel": 14, "elixirCost": 8 },
+          { "name": "Night Witch", "id": 26000048, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Baby Dragon", "id": 26000015, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Mega Minion", "id": 26000039, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Lightning", "id": 28000007, "level": 14, "maxLevel": 14, "elixirCost": 6 },
+          { "name": "Tornado", "id": 28000012, "level": 14, "maxLevel": 14, "elixirCost": 3 },
+          { "name": "Lumberjack", "id": 26000034, "level": 14, "maxLevel": 14, "elixirCost": 4 },
+          { "name": "Barbarian Hut", "id": 27000005, "level": 14, "maxLevel": 14, "elixirCost": 7 }
+        ]
+      }
+    ]
+  }
+]

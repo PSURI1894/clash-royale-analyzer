@@ -36,8 +36,14 @@ class Settings(BaseSettings):
     neo4j_user: str = "neo4j"
     neo4j_password: str = "password123"
 
-    # Phase 3+ (left blank until needed).
+    # Official Clash Royale API — battle-log mining (Phase 3). Token is IP-locked:
+    # create it at developer.clashroyale.com for your harvesting host's IP.
     clash_royale_api_token: str = ""
+    cr_api_base_url: str = "https://api.clashroyale.com/v1"
+    # Aggregation guards: min games for a mined edge; max |avg card-level diff| for a "fair" battle.
+    mining_min_sample: int = 20
+    mining_level_tolerance: float = 1.5
+
     anthropic_api_key: str = ""
 
     @property

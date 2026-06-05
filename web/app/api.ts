@@ -1,4 +1,10 @@
-import type { AnalysisReport, CardSummary, MatchupReport } from "./types";
+import type {
+  AnalysisReport,
+  CardMeta,
+  CardSummary,
+  MatchupReport,
+  MiningStats,
+} from "./types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
 
@@ -41,5 +47,22 @@ export async function getMatchup(cards: string[], opponent: string): Promise<Mat
     throw new Error(detail || "Invalid matchup request");
   }
   if (!res.ok) throw new Error(`Matchup failed (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function getMiningStats(): Promise<MiningStats> {
+  const res = await fetch(`${API_BASE}/mining/stats`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load mining stats (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function getMetaCards(
+  dataset = "synthetic",
+  sort: "win_rate" | "usage" = "win_rate",
+  limit = 12
+): Promise<CardMeta[]> {
+  const params = new URLSearchParams({ dataset, sort, limit: String(limit) });
+  const res = await fetch(`${API_BASE}/meta/cards?${params}`, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Failed to load meta cards (HTTP ${res.status})`);
   return res.json();
 }

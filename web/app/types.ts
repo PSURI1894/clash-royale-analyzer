@@ -93,3 +93,18 @@ export interface MatchupReport {
   threats: ThreatCoverage[];
   danger: string[];
 }
+
+export interface MiningStats {
+  battles: number;
+  by_dataset: Record<string, number>;
+  mined_edges: number;
+  players: number;
+}
+
+export interface CardMeta {
+  key: string;
+  name: string;
+  games: number;
+  win_rate: number;
+  usage: number;
+}
