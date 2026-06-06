@@ -211,3 +211,25 @@ html, body {
 .meta-val { font-size: 12.5px; font-weight: 800; text-align: right; }
 .meta-note { font-size: 11.5px; margin: 14px 0 0; }
 @media (max-width: 560px) { .meta-row { grid-template-columns: 18px 100px 1fr 42px; } }
+
+/* ---- AI coach (RAG advisor) ---- */
+.advisor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.advisor-head h3 { margin: 0; font-size: 18px; }
+.advice { margin-top: 16px; }
+.advice-verdict { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.advice-verdict strong { font-size: 15px; }
+.ground { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.ground.ok { background: #0f2a1a; border: 1px solid #15803d; color: #86efac; }
+.ground.warn { background: #3a1320; border: 1px solid #b45309; color: #fcd34d; }
+.ground-engine { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; }
+.advice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 16px; }
+@media (max-width: 720px) { .advice-grid { grid-template-columns: 1fr; } }
+.advice-grid h4 { margin: 0 0 8px; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+.advice-grid h4:not(:first-child) { margin-top: 16px; }
+.advice-grid ul, .advice-grid ol { margin: 0; padding-left: 18px; }
+.advice-grid li { font-size: 13px; line-height: 1.5; margin-bottom: 6px; color: var(--text); }
+.placements { list-style: none; padding-left: 0 !important; }
+.placements li { color: var(--muted); }
+.placements strong { color: var(--text); }
+.advice-sources { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.cite { font-family: ui-monospace, monospace; font-size: 11px; background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); padding: 2px 7px; border-radius: 6px; }

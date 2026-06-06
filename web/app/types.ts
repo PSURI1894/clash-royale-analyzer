@@ -108,3 +108,33 @@ export interface CardMeta {
   win_rate: number;
   usage: number;
 }
+
+export interface Placement {
+  card: string;
+  note: string;
+}
+
+export interface Grounding {
+  ok: boolean;
+  engine: string;
+  unverified_numbers: string[];
+}
+
+export interface AdviceSource {
+  id: string;
+  title: string;
+  score: number;
+}
+
+export interface AdviceReport {
+  deck_archetype: string;
+  opponent: string;
+  verdict: string;
+  key_facts: string[];
+  game_plan: string[];
+  defensive_routine: string[];
+  placements: Placement[];
+  citations: string[];
+  sources: AdviceSource[];
+  grounding: Grounding;
+}

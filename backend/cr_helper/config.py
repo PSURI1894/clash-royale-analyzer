@@ -44,7 +44,15 @@ class Settings(BaseSettings):
     mining_min_sample: int = 20
     mining_level_tolerance: float = 1.5
 
+    # RAG tactical advisor (Phase 4).
+    embed_backend: str = "hashing"  # hashing (offline, default) | voyage | openai
+    embed_dim: int = 512
+    advisor_backend: str = "auto"   # auto (Claude if key else stub) | stub | claude
     anthropic_api_key: str = ""
+    anthropic_model: str = "claude-opus-4-8"        # synthesis (configurable)
+    anthropic_router_model: str = "claude-haiku-4-5"  # routing (configurable)
+    voyage_api_key: str = ""
+    rag_top_k: int = 5
 
     @property
     def raw_data_dir(self) -> Path:

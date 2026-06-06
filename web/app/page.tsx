@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { analyzeDeck, getCards } from "./api";
+import Advisor from "./components/Advisor";
 import CardGrid from "./components/CardGrid";
 import DeckTray from "./components/DeckTray";
 import Matchup from "./components/Matchup";
@@ -96,6 +97,8 @@ export default function Home() {
       {deck.length === 8 && (
         <Matchup key={deck.join(",")} deck={deck} byKey={byKey} />
       )}
+
+      {deck.length === 8 && <Advisor key={`adv-${deck.join(",")}`} deck={deck} />}
 
       <MetaPanel />
 

@@ -170,3 +170,42 @@ class CardMetaOut(BaseModel):
     games: int
     win_rate: float
     usage: float
+
+
+# ---- RAG advisor (Phase 4) ----
+
+
+class AdviceRequest(BaseModel):
+    cards: list[str]
+    opponent: str | None = None
+    opponent_cards: list[str] | None = None
+
+
+class PlacementOut(BaseModel):
+    card: str
+    note: str
+
+
+class RetrievedChunkOut(BaseModel):
+    id: str
+    title: str
+    score: float
+
+
+class GroundingOut(BaseModel):
+    ok: bool
+    engine: str                       # stub | claude
+    unverified_numbers: list[str] = []
+
+
+class AdviceReport(BaseModel):
+    deck_archetype: str
+    opponent: str
+    verdict: str
+    key_facts: list[str]
+    game_plan: list[str]
+    defensive_routine: list[str]
+    placements: list[PlacementOut]
+    citations: list[str] = []
+    sources: list[RetrievedChunkOut] = []
+    grounding: GroundingOut = GroundingOut(ok=True, engine="unknown")

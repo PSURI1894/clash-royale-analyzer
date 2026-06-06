@@ -157,3 +157,23 @@ class CardMetaStat(Base):
     win_rate: Mapped[float] = mapped_column(Float, default=0.0)
     usage: Mapped[float] = mapped_column(Float, default=0.0)  # fraction of battles featuring it
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class GuideChunk(Base):
+    """A retrievable strategy/placement note for the RAG advisor.
+
+    Original, paraphrased guidance (not copyrighted text). The embedding is stored
+    as JSON (Python cosine on SQLite); swap in pgvector for the full stack.
+    """
+
+    __tablename__ = "guide_chunks"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    title: Mapped[str] = mapped_column(String)
+    topic: Mapped[str] = mapped_column(String, index=True)      # defense | placement | macro | matchup
+    archetype: Mapped[str] = mapped_column(String, index=True)  # opponent archetype, or "general"
+    cards: Mapped[list] = mapped_column(JSON, default=list)     # relevant card keys
+    text: Mapped[str] = mapped_column(Text)
+    embedding: Mapped[list | None] = mapped_column(JSON)        # L2-normalized list[float]
+    embed_model: Mapped[str | None] = mapped_column(String)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

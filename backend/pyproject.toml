@@ -25,6 +25,9 @@ postgres = ["psycopg[binary]>=3.2"]
 neo4j = ["neo4j>=5.20"]
 # Celery — only needed for scheduled mining on the full stack (needs Redis).
 celery = ["celery[redis]>=5.3"]
+# LLM advisor (Phase 4) — real Claude client + Voyage embeddings. Stub runs without these.
+llm = ["anthropic>=0.40"]
+embed = ["voyageai>=0.3"]
 dev = ["pytest>=8", "ruff>=0.5"]
 
 [tool.hatch.build.targets.wheel]

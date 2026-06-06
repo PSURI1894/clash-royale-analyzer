@@ -26,7 +26,7 @@ Next.js web  ──►  FastAPI  ──►  LlamaIndex orchestration + Context F
 | 1 | Deterministic deck analyzer (`/analyze`) + Next.js deck-builder UI | ✅ done |
 | 2 | Knowledge graph + curated matchups + confidence-weighted ensemble (`/matchup`, `/cards/{key}/relations`) | ✅ done |
 | 3 | Battle-log mining ETL → empirical `mined` edges + card meta (`/mining/stats`, `/meta/cards`) | ✅ done |
-| 4 | RAG tactical advisor (Claude + pgvector) | ⬜ |
+| 4 | RAG tactical advisor: Context Fusion + grounding guardrail (`/advise`) | ✅ done |
 | 5 | Deterministic battle engine | ⬜ |
 | 6 | Scraping enrichment + productionization | ⬜ |
 
@@ -48,9 +48,12 @@ py -3 -m venv .venv
 # Mine empirical win-rates (offline synthetic source — no API token needed)
 .\.venv\Scripts\python.exe -m cr_helper.mining --source synthetic --limit 10000
 
+# Build the RAG index (embed the strategy corpus for the advisor)
+.\.venv\Scripts\python.exe -m cr_helper.rag.index
+
 # Run the API
 .\.venv\Scripts\python.exe -m uvicorn cr_helper.main:app --reload
-# -> http://127.0.0.1:8000/docs   (try GET /cards, GET /cards/knight)
+# -> http://127.0.0.1:8000/docs   (try POST /advise, /matchup, /analyze)
 
 # Tests
 .\.venv\Scripts\python.exe -m pytest
@@ -105,6 +108,23 @@ accumulate, mined evidence **outweighs and refines** the curated prior — e.g. 
 Keys are **IP-locked**: run the harvester on a static-IP host (or proxy), never serverless.
 Scheduling: wrap `run_mining` with Celery beat (`cr_helper/mining/tasks.py`, needs Redis).
 
+## RAG tactical advisor (Phase 4)
+
+`POST /advise` returns a structured, **grounded** coaching report for a deck + matchup.
+
+- **Context Fusion** assembles an evidence pack — hard facts from the analyzer (elixir, DPS,
+  anti-air), the graph (matchup score, threat coverage) and mining (card win-rates), plus the
+  top retrieved strategy notes.
+- **Grounding guardrail (the anti-hallucination spine):** every number in the output must
+  appear in the evidence or it is flagged. Each report carries `grounding.ok` + `engine`.
+- **Two clients, one interface:** an offline **Stub** (deterministic, grounded by construction —
+  runs with no key) and **Claude** (`opus` synthesis, prompt-cached system prompt + tool-use
+  structured output) when `ANTHROPIC_API_KEY` is set (`pip install -e ".[llm]"`).
+- **Embeddings:** offline feature-hashing by default; `EMBED_BACKEND=voyage` for production.
+  Vector search is Python cosine on SQLite — swap in **pgvector** at scale.
+
+The corpus (`data/curated/strategy.json`) is original, paraphrased guidance — not copyrighted text.
+
 ## Layout
 
 ```
@@ -113,10 +133,11 @@ backend/cr_helper/        FastAPI app, models, ingest pipeline
   analyzer/               deterministic deck metrics + archetype/vulnerabilities
   graph/                  matchup graph: ensemble resolver, SQL + Neo4j repos, seed
   mining/                 battle-log ETL: sources (api/synthetic), parse, aggregate
-  routers/                API endpoints (cards, analyze, graph, mining)
-backend/tests/            pytest (34 tests)
-web/                      Next.js frontend (deck builder + matchup + card meta)
+  rag/                    advisor: embed, vector store, retrieve, fusion, guardrail, clients
+  routers/                API endpoints (cards, analyze, graph, mining, advise)
+backend/tests/            pytest (39 tests)
+web/                      Next.js frontend (deck builder + matchup + meta + AI coach)
 docker-compose.yml        Postgres+pgvector, Neo4j, Redis
-data/curated/             curated matchup edges (matchups.json)
+data/curated/             curated matchup edges + strategy corpus (matchups/strategy.json)
 data/fixtures/            sample official-API battle log (parser tests)
 ```

@@ -5,11 +5,11 @@ import itertools
 from collections import defaultdict
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from ..config import settings
-from ..models import Battle, CardMetaStat, MatchupEdge
+from ..models import Battle, Card, CardMetaStat, CardStats, MatchupEdge
 
 MINED_CONFIDENCE = 0.8
 # Only persist a mined edge if the win-rate is at least this far from neutral (0.5).
@@ -25,6 +25,31 @@ def _is_fair(b: Battle, tol: float) -> bool:
     if b.team_avg_level is None or b.opponent_avg_level is None:
         return True
     return abs(b.team_avg_level - b.opponent_avg_level) <= tol
+
+
+# Spells that only hit the ground — they can never answer a flying threat.
+GROUND_ONLY_SPELLS = {"the-log", "earthquake", "barbarian-barrel", "royal-delivery"}
+
+
+def _targeting_sets(session: Session) -> tuple[set[str], set[str]]:
+    """(flying cards, cards that can answer air). Most spells hit air; ground-only
+    troops/buildings and ground-only spells cannot — so we never mine them as air counters."""
+    flying: set[str] = set()
+    air_ok: set[str] = set()
+    rows = session.execute(
+        select(
+            Card.key, Card.type, CardStats.is_flying,
+            CardStats.targets_air, CardStats.targets_buildings_only,
+        ).outerjoin(CardStats, CardStats.card_key == Card.key)
+    ).all()
+    for key, ctype, is_flying, targets_air, buildings_only in rows:
+        if is_flying:
+            flying.add(key)
+        # A real air answer hits air and isn't a building-only targeter (e.g. Ice Golem).
+        can_air = (bool(targets_air) and not bool(buildings_only)) or ctype == "Spell"
+        if can_air and key not in GROUND_ONLY_SPELLS:
+            air_ok.add(key)
+    return flying, air_ok
 
 
 def aggregate(
@@ -61,8 +86,14 @@ def aggregate(
             synergy_g[(a, bb)] += 1
             synergy_w[(a, bb)] += won
 
+    # Clean rebuild of this dataset's mined edges (idempotent; no stale rows).
+    flying, air_ok = _targeting_sets(session)
+    session.execute(
+        delete(MatchupEdge).where(MatchupEdge.source == "mined", MatchupEdge.note.like(f"{dataset}:%"))
+    )
+
     edges = 0
-    edges += _write_edges(session, "counters", counter_g, counter_w, min_sample, dataset)
+    edges += _write_edges(session, "counters", counter_g, counter_w, min_sample, dataset, flying, air_ok)
     edges += _write_edges(session, "synergizes_with", synergy_g, synergy_w, min_sample, dataset)
 
     for key, g in card_g.items():
@@ -78,10 +109,13 @@ def aggregate(
     }
 
 
-def _write_edges(session, relation, games, wins, min_sample, dataset) -> int:
+def _write_edges(session, relation, games, wins, min_sample, dataset, flying=None, air_ok=None) -> int:
     written = 0
     for (a, b), g in games.items():
         if g < min_sample:
+            continue
+        # A ground-only unit cannot be a real counter to a flying threat — drop it.
+        if relation == "counters" and flying and b in flying and a not in air_ok:
             continue
         wr = wins[(a, b)] / g
         if abs(wr - 0.5) < MINED_MARGIN:

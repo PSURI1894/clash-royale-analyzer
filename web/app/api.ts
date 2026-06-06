@@ -1,4 +1,5 @@
 import type {
+  AdviceReport,
   AnalysisReport,
   CardMeta,
   CardSummary,
@@ -64,5 +65,20 @@ export async function getMetaCards(
   const params = new URLSearchParams({ dataset, sort, limit: String(limit) });
   const res = await fetch(`${API_BASE}/meta/cards?${params}`, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to load meta cards (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function getAdvice(cards: string[], opponent: string): Promise<AdviceReport> {
+  const res = await fetch(`${API_BASE}/advise`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ cards, opponent }),
+  });
+  if (res.status === 422) {
+    const body = await res.json().catch(() => ({}));
+    const detail = Array.isArray(body.detail) ? body.detail.join("; ") : body.detail;
+    throw new Error(detail || "Invalid advice request");
+  }
+  if (!res.ok) throw new Error(`Advice failed (HTTP ${res.status})`);
   return res.json();
 }
