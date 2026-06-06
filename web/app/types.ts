@@ -138,3 +138,34 @@ export interface AdviceReport {
   sources: AdviceSource[];
   grounding: Grounding;
 }
+
+export interface SimTower {
+  side: string;
+  kind: string;
+  x: number;
+  y: number;
+  hp: number;
+  max_hp: number;
+  alive: boolean;
+}
+
+export interface SimUnit {
+  name: string;
+  side: string;
+  x: number;
+  y: number;
+  hp_pct: number;
+}
+
+export interface SimResult {
+  winner: string;
+  duration: number;
+  summary: string;
+  attacker_survivors: string[];
+  defender_survivors: string[];
+  defender_tower_damage: number;
+  towers: SimTower[];
+  units: SimUnit[];
+  events: { t: number; text: string }[];
+  warnings: string[];
+}

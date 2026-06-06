@@ -27,7 +27,7 @@ Next.js web  ──►  FastAPI  ──►  LlamaIndex orchestration + Context F
 | 2 | Knowledge graph + curated matchups + confidence-weighted ensemble (`/matchup`, `/cards/{key}/relations`) | ✅ done |
 | 3 | Battle-log mining ETL → empirical `mined` edges + card meta (`/mining/stats`, `/meta/cards`) | ✅ done |
 | 4 | RAG tactical advisor: Context Fusion + grounding guardrail (`/advise`) | ✅ done |
-| 5 | Deterministic battle engine | ⬜ |
+| 5 | Deterministic battle engine: duel + arena sim, `simulated` ensemble edges (`/simulate`) | ✅ done |
 | 6 | Scraping enrichment + productionization | ⬜ |
 
 ## Quickstart (local dev — no Docker needed)
@@ -50,6 +50,9 @@ py -3 -m venv .venv
 
 # Build the RAG index (embed the strategy corpus for the advisor)
 .\.venv\Scripts\python.exe -m cr_helper.rag.index
+
+# Seed simulated edges from the battle engine (deterministic duels)
+.\.venv\Scripts\python.exe -m cr_helper.engine.simulated
 
 # Run the API
 .\.venv\Scripts\python.exe -m uvicorn cr_helper.main:app --reload
@@ -125,6 +128,18 @@ Scheduling: wrap `run_mining` with Celery beat (`cr_helper/mining/tasks.py`, nee
 
 The corpus (`data/curated/strategy.json`) is original, paraphrased guidance — not copyrighted text.
 
+## Battle engine (Phase 5)
+
+Deterministic, reduced-fidelity combat — pure Python, no API key or Docker.
+
+- **v0 duel** (`POST /simulate/duel`): discrete-hit 1v1 trade calculator (winner + leftover HP).
+- **Arena sim** (`POST /simulate`): movement, targeting, splash, towers and river/bridge routing
+  on a simplified 18×32 grid; reports tower damage, survivors and final unit positions.
+- **`simulated` edges:** `python -m cr_helper.engine.simulated` runs a duel for every fighter pair
+  and writes decisive wins as low-weight `source=simulated` counter edges — completing the
+  **curated + mined + simulated** ensemble (visible in `/cards/{key}/relations` `components`).
+- Frontend: an SVG arena board visualising the push outcome.
+
 ## Layout
 
 ```
@@ -134,9 +149,10 @@ backend/cr_helper/        FastAPI app, models, ingest pipeline
   graph/                  matchup graph: ensemble resolver, SQL + Neo4j repos, seed
   mining/                 battle-log ETL: sources (api/synthetic), parse, aggregate
   rag/                    advisor: embed, vector store, retrieve, fusion, guardrail, clients
-  routers/                API endpoints (cards, analyze, graph, mining, advise)
-backend/tests/            pytest (39 tests)
-web/                      Next.js frontend (deck builder + matchup + meta + AI coach)
+  engine/                 battle engine: units, duel, arena, scenario, simulated edges
+  routers/                API endpoints (cards, analyze, graph, mining, advise, simulate)
+backend/tests/            pytest (46 tests)
+web/                      Next.js frontend (deck builder + matchup + meta + AI coach + sim)
 docker-compose.yml        Postgres+pgvector, Neo4j, Redis
 data/curated/             curated matchup edges + strategy corpus (matchups/strategy.json)
 data/fixtures/            sample official-API battle log (parser tests)

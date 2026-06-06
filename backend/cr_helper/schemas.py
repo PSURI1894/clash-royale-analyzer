@@ -209,3 +209,63 @@ class AdviceReport(BaseModel):
     citations: list[str] = []
     sources: list[RetrievedChunkOut] = []
     grounding: GroundingOut = GroundingOut(ok=True, engine="unknown")
+
+
+# ---- Battle engine (Phase 5) ----
+
+
+class DuelRequest(BaseModel):
+    a: str
+    b: str
+
+
+class DuelOut(BaseModel):
+    a: str
+    b: str
+    winner: str | None
+    a_hp_pct: float
+    b_hp_pct: float
+    duration: float
+    summary: str
+
+
+class SimRequest(BaseModel):
+    attacker: list[str]
+    defender: list[str]
+    lane: str = "left"
+
+
+class TowerOut(BaseModel):
+    side: str
+    kind: str
+    x: float
+    y: float
+    hp: float
+    max_hp: float
+    alive: bool
+
+
+class SimEventOut(BaseModel):
+    t: float
+    text: str
+
+
+class SimUnitOut(BaseModel):
+    name: str
+    side: str
+    x: float
+    y: float
+    hp_pct: float
+
+
+class SimResultOut(BaseModel):
+    winner: str
+    duration: float
+    summary: str
+    attacker_survivors: list[str]
+    defender_survivors: list[str]
+    defender_tower_damage: int
+    towers: list[TowerOut]
+    units: list[SimUnitOut] = []
+    events: list[SimEventOut] = []
+    warnings: list[str] = []

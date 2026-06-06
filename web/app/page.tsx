@@ -8,6 +8,7 @@ import DeckTray from "./components/DeckTray";
 import Matchup from "./components/Matchup";
 import MetaPanel from "./components/MetaPanel";
 import Report from "./components/Report";
+import Simulator from "./components/Simulator";
 import { PRESETS } from "./presets";
 import type { AnalysisReport, CardSummary } from "./types";
 
@@ -99,6 +100,8 @@ export default function Home() {
       )}
 
       {deck.length === 8 && <Advisor key={`adv-${deck.join(",")}`} deck={deck} />}
+
+      {deck.length === 8 && <Simulator key={`sim-${deck.join(",")}`} deck={deck} byKey={byKey} />}
 
       <MetaPanel />
 

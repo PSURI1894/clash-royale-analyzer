@@ -5,6 +5,7 @@ import type {
   CardSummary,
   MatchupReport,
   MiningStats,
+  SimResult,
 } from "./types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
@@ -80,5 +81,24 @@ export async function getAdvice(cards: string[], opponent: string): Promise<Advi
     throw new Error(detail || "Invalid advice request");
   }
   if (!res.ok) throw new Error(`Advice failed (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function getSimulation(
+  attacker: string[],
+  defender: string[],
+  lane: "left" | "right" = "left"
+): Promise<SimResult> {
+  const res = await fetch(`${API_BASE}/simulate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ attacker, defender, lane }),
+  });
+  if (res.status === 422) {
+    const body = await res.json().catch(() => ({}));
+    const detail = Array.isArray(body.detail) ? body.detail.join("; ") : body.detail;
+    throw new Error(detail || "Invalid simulation request");
+  }
+  if (!res.ok) throw new Error(`Simulation failed (HTTP ${res.status})`);
   return res.json();
 }

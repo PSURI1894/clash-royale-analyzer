@@ -9,7 +9,7 @@ from fastapi.responses import RedirectResponse
 
 from . import __version__
 from .db import init_db
-from .routers import advise, analyze, cards, graph, mining
+from .routers import advise, analyze, cards, graph, mining, simulate
 
 
 @asynccontextmanager
@@ -38,6 +38,7 @@ app.include_router(analyze.router)
 app.include_router(graph.router)
 app.include_router(mining.router)
 app.include_router(advise.router)
+app.include_router(simulate.router)
 
 
 @app.get("/health", tags=["meta"])

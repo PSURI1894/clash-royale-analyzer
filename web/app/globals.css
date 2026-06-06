@@ -233,3 +233,18 @@ html, body {
 .placements strong { color: var(--text); }
 .advice-sources { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .cite { font-family: ui-monospace, monospace; font-size: 11px; background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); padding: 2px 7px; border-radius: 6px; }
+
+/* ---- battle simulator ---- */
+.sim-controls { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-top: 16px; }
+.sim-controls label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--muted); }
+.sim-lane { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.sim-defenders { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-top: 14px; }
+.sim-result { display: grid; grid-template-columns: 200px 1fr; gap: 22px; margin-top: 18px; align-items: start; }
+@media (max-width: 640px) { .sim-result { grid-template-columns: 1fr; justify-items: center; } }
+.arena { width: 180px; height: 320px; border: 1px solid var(--border); border-radius: 10px; background: #0c1326; }
+.sim-winner { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.sim-readout p { margin: 0 0 12px; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+.sim-stats { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.sim-stats li { font-size: 13px; color: var(--muted); }
+.sim-stats strong { color: var(--text); }
+.sim-warn { font-size: 11.5px !important; margin-top: 10px !important; }
