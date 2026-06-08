@@ -30,7 +30,7 @@ class OfficialApiSource(BattleSource):
 
     def __init__(
         self,
-        seed_tags: list[str],
+        seed_tags: list[str] | None = None,
         token: str | None = None,
         base_url: str | None = None,
         delay: float = 0.2,
@@ -41,8 +41,7 @@ class OfficialApiSource(BattleSource):
                 "CLASH_ROYALE_API_TOKEN is not set. Create an IP-whitelisted key at "
                 "developer.clashroyale.com and put it in .env."
             )
-        if not seed_tags:
-            raise RuntimeError("OfficialApiSource needs at least one seed player tag (e.g. #2PP).")
+        # seed_tags optional: when omitted we auto-seed from the global rankings.
         self.base = (base_url or settings.cr_api_base_url).rstrip("/")
         self.seed_tags = seed_tags
         self.delay = delay
@@ -51,23 +50,48 @@ class OfficialApiSource(BattleSource):
             timeout=20.0,
         )
 
-    def _battlelog(self, tag: str) -> list[dict]:
-        enc = tag.replace("#", "%23")
-        r = self._client.get(f"{self.base}/players/{enc}/battlelog")
+    def _get_json(self, url: str, params: dict | None = None):
+        r = self._client.get(url, params=params)
         if r.status_code == 403:
             raise PermissionError(
                 "403 from the Clash Royale API — your token's IP allowlist almost certainly "
                 "doesn't include this host. Add the host's public IP to the key at "
                 f"developer.clashroyale.com. Server said: {r.text[:200]}"
             )
-        if r.status_code == 404:
-            return []
         r.raise_for_status()
         return r.json()
 
+    def _battlelog(self, tag: str) -> list[dict]:
+        enc = tag.replace("#", "%23")
+        try:
+            return self._get_json(f"{self.base}/players/{enc}/battlelog")
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                return []
+            raise
+
+    def _auto_seed(self, limit: int = 40) -> list[str]:
+        """Best-effort seed from the global player rankings when no tags are given."""
+        locations = self._get_json(f"{self.base}/locations").get("items", [])
+        glob = next(
+            (loc for loc in locations
+             if not loc.get("isCountry") and "international" in (loc.get("name", "").lower())),
+            None,
+        ) or next((loc for loc in locations if not loc.get("isCountry")), None)
+        if not glob:
+            raise RuntimeError("Could not resolve a global location; pass --seed-tags explicitly.")
+        data = self._get_json(
+            f"{self.base}/locations/{glob['id']}/rankings/players", params={"limit": limit}
+        )
+        tags = [p["tag"] for p in data.get("items", []) if p.get("tag")]
+        if not tags:
+            raise RuntimeError("Rankings returned no players; pass --seed-tags explicitly.")
+        return tags
+
     def iter_raw_battles(self, limit: int) -> Iterator[dict]:
+        seeds = self.seed_tags or self._auto_seed()
         seen: set[str] = set()
-        queue: list[str] = list(self.seed_tags)
+        queue: list[str] = list(seeds)
         produced = 0
         while queue and produced < limit:
             tag = queue.pop(0)
