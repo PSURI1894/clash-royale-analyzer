@@ -3,13 +3,14 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from . import __version__
 from .db import init_db
-from .routers import advise, analyze, cards, graph, mining, simulate
+from .routers import advise, analyze, cards, decks, graph, mining, simulate, system
+from .runtime import limiter, metrics
 
 
 @asynccontextmanager
@@ -33,12 +34,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.middleware("http")
+async def rate_limit_and_meter(request: Request, call_next):
+    client = request.client.host if request.client else "anon"
+    if request.url.path not in ("/healthz", "/stats") and not limiter.allow(client):
+        metrics.rate_limited += 1
+        return JSONResponse({"detail": "rate limit exceeded"}, status_code=429)
+    response = await call_next(request)
+    metrics.record(request.url.path, response.status_code)
+    return response
+
+
 app.include_router(cards.router)
 app.include_router(analyze.router)
 app.include_router(graph.router)
 app.include_router(mining.router)
 app.include_router(advise.router)
 app.include_router(simulate.router)
+app.include_router(decks.router)
+app.include_router(system.router)
 
 
 @app.get("/health", tags=["meta"])

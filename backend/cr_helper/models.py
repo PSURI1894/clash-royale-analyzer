@@ -177,3 +177,16 @@ class GuideChunk(Base):
     embedding: Mapped[list | None] = mapped_column(JSON)        # L2-normalized list[float]
     embed_model: Mapped[str | None] = mapped_column(String)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+
+class SavedDeck(Base):
+    """A user's saved deck. Identified by an opaque client token (no passwords/PII)."""
+
+    __tablename__ = "saved_decks"
+    __table_args__ = (UniqueConstraint("user_token", "name", name="uq_user_deck"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_token: Mapped[str] = mapped_column(String, index=True)
+    name: Mapped[str] = mapped_column(String)
+    cards: Mapped[list] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)

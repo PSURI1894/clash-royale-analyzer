@@ -169,3 +169,9 @@ export interface SimResult {
   events: { t: number; text: string }[];
   warnings: string[];
 }
+
+export interface SavedDeck {
+  id: number;
+  name: string;
+  cards: string[];
+}

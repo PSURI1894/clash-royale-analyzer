@@ -28,7 +28,7 @@ Next.js web  ──►  FastAPI  ──►  LlamaIndex orchestration + Context F
 | 3 | Battle-log mining ETL → empirical `mined` edges + card meta (`/mining/stats`, `/meta/cards`) | ✅ done |
 | 4 | RAG tactical advisor: Context Fusion + grounding guardrail (`/advise`) | ✅ done |
 | 5 | Deterministic battle engine: duel + arena sim, `simulated` ensemble edges (`/simulate`) | ✅ done |
-| 6 | Scraping enrichment + productionization | ⬜ |
+| 6 | Scraping (4th source) + reconciliation, saved decks, rate-limit/cache/metrics, Docker | ✅ done |
 
 ## Quickstart (local dev — no Docker needed)
 
@@ -53,6 +53,9 @@ py -3 -m venv .venv
 
 # Seed simulated edges from the battle engine (deterministic duels)
 .\.venv\Scripts\python.exe -m cr_helper.engine.simulated
+
+# Seed the scraped cross-check source (offline synthetic fixture)
+.\.venv\Scripts\python.exe -m cr_helper.scrape
 
 # Run the API
 .\.venv\Scripts\python.exe -m uvicorn cr_helper.main:app --reload
@@ -140,6 +143,27 @@ Deterministic, reduced-fidelity combat — pure Python, no API key or Docker.
   **curated + mined + simulated** ensemble (visible in `/cards/{key}/relations` `components`).
 - Frontend: an SVG arena board visualising the push outcome.
 
+## Scraping & productionization (Phase 6)
+
+- **Scraped source** (`python -m cr_helper.scrape`): a robots/ToS-respecting, network-gated
+  scraper feeds card meta + popular counters as a low-weight `scraped` cross-check — the 4th
+  and final ensemble source. The offline `FixtureScrapeSource` (a clearly-synthetic placeholder)
+  makes it verifiable without touching any live site; `HttpScrapeSource` is the real path,
+  disabled unless `SCRAPE_ALLOW_NETWORK=true` and you've confirmed the site's terms.
+- **Reconciliation** (`GET /meta/reconcile`): scraped vs mined card win-rates (mean |Δ| + agreement).
+- **Saved decks** (`/decks`): per-browser token — no accounts or passwords — with validated CRUD.
+- **Hardening:** per-client rate limiting, an analyze response cache, and `/healthz` + `/stats`
+  (uptime, request counts, cache hits).
+
+### Deploy (full stack)
+
+```powershell
+docker compose up -d --build          # Postgres+pgvector, Neo4j, Redis, and the API image
+docker compose exec api python -m cr_helper.ingest
+docker compose exec api python -m cr_helper.graph.seed
+# web -> Vercel (set NEXT_PUBLIC_API_BASE); API/harvester -> a static-IP host (the CR API is IP-locked)
+```
+
 ## Layout
 
 ```
@@ -150,10 +174,13 @@ backend/cr_helper/        FastAPI app, models, ingest pipeline
   mining/                 battle-log ETL: sources (api/synthetic), parse, aggregate
   rag/                    advisor: embed, vector store, retrieve, fusion, guardrail, clients
   engine/                 battle engine: units, duel, arena, scenario, simulated edges
-  routers/                API endpoints (cards, analyze, graph, mining, advise, simulate)
-backend/tests/            pytest (48 tests)
-web/                      Next.js frontend (deck builder + matchup + meta + AI coach + sim)
-docker-compose.yml        Postgres+pgvector, Neo4j, Redis
-data/curated/             curated matchup edges + strategy corpus (matchups/strategy.json)
+  scrape/                 guarded scraper, reconciliation, scraped-edge seeder
+  runtime.py              rate limiter, metrics, TTL cache
+  routers/                cards, analyze, graph, mining, advise, simulate, decks, system
+backend/tests/            pytest (56 tests)
+web/                      Next.js (deck builder + matchup + meta + coach + sim + saved decks)
+docker-compose.yml        Postgres+pgvector, Neo4j, Redis, API
+Dockerfile                backend API image
+data/curated/             curated matchup edges + strategy corpus + scraped fixture
 data/fixtures/            sample official-API battle log (parser tests)
 ```

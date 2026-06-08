@@ -212,6 +212,16 @@ html, body {
 .meta-note { font-size: 11.5px; margin: 14px 0 0; }
 @media (max-width: 560px) { .meta-row { grid-template-columns: 18px 100px 1fr 42px; } }
 
+/* ---- saved decks ---- */
+.saved-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.saved-head h3 { margin: 0; font-size: 18px; }
+.saved-save { display: flex; gap: 8px; }
+.saved-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.saved-item { display: inline-flex; align-items: center; }
+.saved-item .chip { border-radius: 999px 0 0 999px; }
+.saved-del { border: 1px solid var(--border); border-left: none; background: var(--panel-2); color: var(--muted); width: 26px; height: 26px; border-radius: 0 999px 999px 0; cursor: pointer; font-size: 15px; line-height: 1; }
+.saved-del:hover { color: #fca5a5; border-color: #7f1d1d; }
+
 /* ---- AI coach (RAG advisor) ---- */
 .advisor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .advisor-head h3 { margin: 0; font-size: 18px; }

@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 
 from ..db import get_session
 from ..models import Battle, Card, CardMetaStat, MatchupEdge
-from ..schemas import CardMetaOut, MiningStatsOut
+from ..schemas import CardMetaOut, MiningStatsOut, ReconcileReport
+from ..scrape.reconcile import reconcile
+from ..scrape.sources import FixtureScrapeSource
 
 router = APIRouter(tags=["mining"])
 
@@ -50,3 +52,12 @@ def meta_cards(
     ]
     items.sort(key=lambda x: x.win_rate if sort == "win_rate" else x.usage, reverse=True)
     return items[:limit]
+
+
+@router.get("/meta/reconcile", response_model=ReconcileReport)
+def meta_reconcile(
+    dataset: str = "synthetic", session: Session = Depends(get_session)
+) -> ReconcileReport:
+    """Cross-check the scraped card win-rates against our mined meta."""
+    meta = FixtureScrapeSource().fetch_meta()
+    return ReconcileReport(**reconcile(session, meta.get("cards", []), mined_dataset=dataset))

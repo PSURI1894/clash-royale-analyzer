@@ -8,6 +8,7 @@ import DeckTray from "./components/DeckTray";
 import Matchup from "./components/Matchup";
 import MetaPanel from "./components/MetaPanel";
 import Report from "./components/Report";
+import SavedDecks from "./components/SavedDecks";
 import Simulator from "./components/Simulator";
 import { PRESETS } from "./presets";
 import type { AnalysisReport, CardSummary } from "./types";
@@ -92,6 +93,8 @@ export default function Home() {
       />
 
       {error && <div className="banner error">{error}</div>}
+
+      <SavedDecks deck={deck} onLoad={loadPreset} />
 
       {report && <Report report={report} byKey={byKey} />}
 

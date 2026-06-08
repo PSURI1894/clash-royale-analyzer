@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     voyage_api_key: str = ""
     rag_top_k: int = 5
 
+    # Phase 6 — scraping + productionization.
+    rate_limit_per_min: int = 120          # per-client request budget (0 disables)
+    cache_ttl_seconds: int = 60            # response cache TTL for analyze
+    scrape_allow_network: bool = False     # must be explicitly enabled to hit the network
+    scrape_user_agent: str = "cr-helper-bot/1.0 (+https://github.com/PSURI1894/clash-royale-analyzer)"
+    scrape_min_interval: float = 2.0       # politeness delay between requests (seconds)
+
     @property
     def raw_data_dir(self) -> Path:
         return self.data_dir / "raw"

@@ -5,10 +5,22 @@ import type {
   CardSummary,
   MatchupReport,
   MiningStats,
+  SavedDeck,
   SimResult,
 } from "./types";
 
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
+
+/** Opaque per-browser identity for saved decks (no account/password). */
+function userToken(): string {
+  if (typeof window === "undefined") return "server";
+  let t = localStorage.getItem("cr_user_token");
+  if (!t) {
+    t = "u-" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    localStorage.setItem("cr_user_token", t);
+  }
+  return t;
+}
 
 export async function getCards(): Promise<CardSummary[]> {
   const res = await fetch(`${API_BASE}/cards`, { cache: "no-store" });
@@ -101,4 +113,36 @@ export async function getSimulation(
   }
   if (!res.ok) throw new Error(`Simulation failed (HTTP ${res.status})`);
   return res.json();
+}
+
+export async function getDecks(): Promise<SavedDeck[]> {
+  const res = await fetch(`${API_BASE}/decks`, {
+    headers: { "X-User-Token": userToken() },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Failed to load decks (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function saveDeck(name: string, cards: string[]): Promise<SavedDeck> {
+  const res = await fetch(`${API_BASE}/decks`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-User-Token": userToken() },
+    body: JSON.stringify({ name, cards }),
+  });
+  if (res.status === 422) {
+    const body = await res.json().catch(() => ({}));
+    const detail = Array.isArray(body.detail) ? body.detail.join("; ") : body.detail;
+    throw new Error(detail || "Invalid deck");
+  }
+  if (!res.ok) throw new Error(`Save failed (HTTP ${res.status})`);
+  return res.json();
+}
+
+export async function deleteDeck(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/decks/${id}`, {
+    method: "DELETE",
+    headers: { "X-User-Token": userToken() },
+  });
+  if (!res.ok) throw new Error(`Delete failed (HTTP ${res.status})`);
 }

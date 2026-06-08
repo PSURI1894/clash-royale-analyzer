@@ -32,6 +32,22 @@ services:
     ports:
       - "6379:6379"
 
+  # Backend API. After it's up, ingest + seed inside it, e.g.:
+  #   docker compose exec api python -m cr_helper.ingest
+  #   docker compose exec api python -m cr_helper.graph.seed
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://cr:cr@postgres:5432/cr_helper
+      NEO4J_URI: bolt://neo4j:7687
+      GRAPH_BACKEND: sql
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   pgdata:
   neo4jdata:

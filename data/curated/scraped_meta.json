@@ -1,0 +1,40 @@
+{
+  "_comment": "SYNTHETIC PLACEHOLDER in the shape a community meta-site would expose. NOT real scraped data. The HttpScrapeSource (scrape/sources.py) is the real, robots/ToS-respecting, network-gated path — supply your own parser and confirm the site's terms before enabling it.",
+  "source": "fixture",
+  "cards": [
+    {"key": "inferno-tower", "win_rate": 0.575, "usage": 0.13},
+    {"key": "electro-wizard", "win_rate": 0.558, "usage": 0.14},
+    {"key": "the-log", "win_rate": 0.552, "usage": 0.16},
+    {"key": "arrows", "win_rate": 0.547, "usage": 0.12},
+    {"key": "fireball", "win_rate": 0.541, "usage": 0.15},
+    {"key": "zap", "win_rate": 0.534, "usage": 0.14},
+    {"key": "bomb-tower", "win_rate": 0.55, "usage": 0.09},
+    {"key": "baby-dragon", "win_rate": 0.532, "usage": 0.10},
+    {"key": "musketeer", "win_rate": 0.525, "usage": 0.13},
+    {"key": "valkyrie", "win_rate": 0.528, "usage": 0.10},
+    {"key": "cannon", "win_rate": 0.521, "usage": 0.11},
+    {"key": "tombstone", "win_rate": 0.519, "usage": 0.08},
+    {"key": "mega-knight", "win_rate": 0.498, "usage": 0.12},
+    {"key": "hog-rider", "win_rate": 0.512, "usage": 0.14},
+    {"key": "wizard", "win_rate": 0.489, "usage": 0.07},
+    {"key": "mini-pekka", "win_rate": 0.515, "usage": 0.09},
+    {"key": "golem", "win_rate": 0.486, "usage": 0.06},
+    {"key": "balloon", "win_rate": 0.503, "usage": 0.08},
+    {"key": "pekka", "win_rate": 0.507, "usage": 0.08},
+    {"key": "knight", "win_rate": 0.51, "usage": 0.12},
+    {"key": "skeletons", "win_rate": 0.508, "usage": 0.11},
+    {"key": "ice-spirit", "win_rate": 0.505, "usage": 0.10}
+  ],
+  "counters": [
+    {"a": "inferno-tower", "b": "golem", "win_rate": 0.72},
+    {"a": "inferno-tower", "b": "lava-hound", "win_rate": 0.71},
+    {"a": "pekka", "b": "golem", "win_rate": 0.68},
+    {"a": "mini-pekka", "b": "hog-rider", "win_rate": 0.64},
+    {"a": "musketeer", "b": "balloon", "win_rate": 0.62},
+    {"a": "bomb-tower", "b": "graveyard", "win_rate": 0.69},
+    {"a": "valkyrie", "b": "skeleton-army", "win_rate": 0.7},
+    {"a": "rocket", "b": "three-musketeers", "win_rate": 0.74},
+    {"a": "fireball", "b": "wizard", "win_rate": 0.66},
+    {"a": "cannon", "b": "hog-rider", "win_rate": 0.63}
+  ]
+}

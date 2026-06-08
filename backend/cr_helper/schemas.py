@@ -269,3 +269,31 @@ class SimResultOut(BaseModel):
     units: list[SimUnitOut] = []
     events: list[SimEventOut] = []
     warnings: list[str] = []
+
+
+# ---- Saved decks + reconciliation (Phase 6) ----
+
+
+class SavedDeckIn(BaseModel):
+    name: str
+    cards: list[str]
+
+
+class SavedDeckOut(BaseModel):
+    id: int
+    name: str
+    cards: list[str]
+
+
+class ReconcileRowOut(BaseModel):
+    key: str
+    scraped: float
+    mined: float
+    delta: float
+
+
+class ReconcileReport(BaseModel):
+    compared: int
+    mean_abs_delta: float | None
+    agreement: str
+    rows: list[ReconcileRowOut]
