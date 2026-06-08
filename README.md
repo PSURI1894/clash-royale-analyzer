@@ -151,7 +151,7 @@ backend/cr_helper/        FastAPI app, models, ingest pipeline
   rag/                    advisor: embed, vector store, retrieve, fusion, guardrail, clients
   engine/                 battle engine: units, duel, arena, scenario, simulated edges
   routers/                API endpoints (cards, analyze, graph, mining, advise, simulate)
-backend/tests/            pytest (46 tests)
+backend/tests/            pytest (48 tests)
 web/                      Next.js frontend (deck builder + matchup + meta + AI coach + sim)
 docker-compose.yml        Postgres+pgvector, Neo4j, Redis
 data/curated/             curated matchup edges + strategy corpus (matchups/strategy.json)

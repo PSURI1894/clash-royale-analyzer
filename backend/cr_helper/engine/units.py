@@ -25,6 +25,11 @@ KING = TowerSpec(hp=4824, damage=109, hit_speed=1.0, rng=7.0)
 # Movement label -> tiles/second (fallback when speed_raw is missing).
 _SPEED_LABEL = {"slow": 0.75, "medium": 1.0, "fast": 1.45, "very fast": 1.9, "veryfast": 1.9}
 
+# One-shot units: deal a single hit then expire (spirits). Without this they
+# "win" long duels against targets that can't retaliate (e.g. a Balloon), which
+# wrongly reads as a hard counter.
+ONE_SHOT_UNITS = {"ice-spirit", "fire-spirit", "electro-spirit", "heal-spirit"}
+
 # Splash attackers and their area radius (tiles). Reliable curated set — the raw
 # stat files don't cleanly separate body radius from splash radius.
 SPLASH_UNITS = {
@@ -61,6 +66,7 @@ class Unit:
     flying: bool
     buildings_only: bool
     splash: float = 0.0
+    one_shot: bool = False
     is_tower: bool = False
     is_building: bool = False
     cooldown: float = 0.0
@@ -109,5 +115,6 @@ def make_unit(uid: int, card, stats, side: str, x: float, y: float) -> Unit:
         flying=bool(stats.is_flying),
         buildings_only=bool(stats.targets_buildings_only),
         splash=SPLASH_UNITS.get(card.key, 0.0),
+        one_shot=card.key in ONE_SHOT_UNITS,
         is_building=is_building,
     )

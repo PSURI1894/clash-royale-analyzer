@@ -84,6 +84,8 @@ class Arena:
                 v.alive = False
                 if v.is_tower:
                     self.events.append(SimEvent(round(self.t, 1), f"{v.name} ({v.side}) destroyed"))
+        if u.one_shot:  # spirit expends itself on its single hit
+            u.alive = False
 
     def _advance(self, u: Unit, target: Unit, dt: float) -> None:
         tx, ty = target.x, target.y

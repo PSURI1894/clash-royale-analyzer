@@ -7,11 +7,11 @@ from cr_helper.engine.units import Unit, make_tower, tower_layout
 
 
 def U(uid, key, side, x, y, hp, dmg, hs=1.0, rng=1.0, spd=1.0,
-      air=False, ground=True, fly=False, bo=False, splash=0.0):
+      air=False, ground=True, fly=False, bo=False, splash=0.0, one_shot=False):
     return Unit(
         uid=uid, key=key, name=key, side=side, x=x, y=y, hp=hp, max_hp=hp, damage=dmg,
         hit_speed=hs, rng=rng, speed=spd, targets_air=air, targets_ground=ground,
-        flying=fly, buildings_only=bo, splash=splash,
+        flying=fly, buildings_only=bo, splash=splash, one_shot=one_shot,
     )
 
 
@@ -41,6 +41,25 @@ def test_duel_is_deterministic():
     a1, b1 = U(1, "a", "attacker", 0, 0, 300, 40), U(2, "b", "defender", 0, 0, 260, 35)
     a2, b2 = U(1, "a", "attacker", 0, 0, 300, 40), U(2, "b", "defender", 0, 0, 260, 35)
     assert duel(a1, b1) == duel(a2, b2)
+
+
+def test_duel_one_shot_unit_loses_when_it_cannot_kill():
+    # A spirit lands one tiny hit then expires; a Balloon can't retaliate but survives.
+    spirit = U(1, "spirit", "attacker", 0, 0, 50, 20, air=True, one_shot=True)
+    balloon = U(2, "balloon", "defender", 0, 0, 1000, 200, bo=True, fly=True)
+    r = duel(spirit, balloon)
+    assert r.winner == "b"   # NOT a counter — one 20-damage hit doesn't kill 1000 HP
+    assert r.b_hp == 980
+
+
+def test_duel_free_win_against_no_retaliation_is_slow():
+    # Weak unit eventually "wins" vs a non-retaliating target, but only after a long
+    # time — the simulated seeder rejects this via MAX_KILL_TIME.
+    weak = U(1, "weak", "attacker", 0, 0, 100, 10, air=True)
+    big = U(2, "big", "defender", 0, 0, 1000, 0, bo=True, fly=True)
+    r = duel(weak, big)
+    assert r.winner == "a"
+    assert r.duration > 7.0
 
 
 # ---- spatial arena ----

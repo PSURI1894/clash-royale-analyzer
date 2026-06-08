@@ -18,20 +18,12 @@ from .duel import duel
 from .units import make_unit
 
 SIM_CONFIDENCE = 0.7
-SIM_MIN_VALUE = 0.6  # only write decisive stat wins
+SIM_MIN_VALUE = 0.6   # only write decisive stat wins
+MAX_KILL_TIME = 7.0   # a real counter neutralizes its target quickly (seconds)
 
 
 def _troops(session: Session) -> list[Card]:
     return [c for c in session.scalars(select(Card).where(Card.type == "Troop")) if c.stats and c.stats.damage]
-
-
-def _duel_value(ua, ub) -> float:
-    r = duel(ua, ub)
-    if r.winner == "a":
-        return round(0.5 + 0.5 * r.a_hp_pct, 3)
-    if r.winner == "b":
-        return round(0.5 - 0.5 * r.b_hp_pct, 3)
-    return 0.5
 
 
 def seed_simulated(session: Session) -> int:
@@ -48,7 +40,13 @@ def seed_simulated(session: Session) -> int:
             ub = make_unit(2, b, b.stats, "defender", 0.0, 0.0)
             if not ua.can_target(ub):
                 continue
-            value = _duel_value(ua, ub)
+            result = duel(ua, ub)
+            # A real counter wins decisively AND quickly. Rejects "free wins" where
+            # the target can't retaliate but the attacker can't kill it in time
+            # (e.g. Ice Spirit vs Balloon) and slow wars of attrition.
+            if result.winner != "a" or result.duration > MAX_KILL_TIME:
+                continue
+            value = round(0.5 + 0.5 * result.a_hp_pct, 3)
             if value < SIM_MIN_VALUE:
                 continue
             session.add(MatchupEdge(

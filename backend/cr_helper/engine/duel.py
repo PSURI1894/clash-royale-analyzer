@@ -39,10 +39,16 @@ def duel(a: Unit, b: Unit, max_time: float = 30.0) -> DuelResult:
             break
         if abs(next_a - t) < _EPS:
             hp_b -= a.damage
-            next_a += a.hit_speed
+            if a.one_shot:          # spirit: lands one hit, then expires
+                hp_a, next_a = 0.0, float("inf")
+            else:
+                next_a += a.hit_speed
         if abs(next_b - t) < _EPS:
             hp_a -= b.damage
-            next_b += b.hit_speed
+            if b.one_shot:
+                hp_b, next_b = 0.0, float("inf")
+            else:
+                next_b += b.hit_speed
         if hp_a <= 0 or hp_b <= 0:
             break
 
